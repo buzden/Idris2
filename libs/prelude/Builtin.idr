@@ -48,21 +48,10 @@ data Unit =
 
 ||| The non-dependent pair type, also known as conjunction.
 public export
-data Pair : Type -> Type -> Type where
-  ||| A pair of elements.
-  ||| @ a the left element of the pair
-  ||| @ b the right element of the pair
-  MkPair : {0 a, b : Type} -> (x : a) -> (y : b) -> Pair a b
-
-||| Return the first element of a pair.
-public export
-fst : {0 a, b : Type} -> (a, b) -> a
-fst (x, y) = x
-
-||| Return the second element of a pair.
-public export
-snd : {0 a, b : Type} -> (a, b) -> b
-snd (x, y) = y
+record Pair (a : Type) (b : Type) where
+  constructor MkPair
+  fst : a
+  snd : b
 
 -- This directive tells auto implicit search what to use to look inside pairs
 %pair Pair fst snd
