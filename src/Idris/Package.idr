@@ -448,8 +448,8 @@ clean pkg opts -- `opts` is not used but might be in the future
          -- the usual pair syntax breaks with `No such variable a` here for some reason
          let pkgTrie : StringTrie (List String)
                      = foldl (\trie, ksv =>
-                                let ks = Builtin.fst ksv
-                                    v = Builtin.snd ksv
+                                let ks = Pair.fst ksv
+                                    v = Pair.snd ksv
                                   in
                                 insertWith (reverse ks) (maybe [v] (v::)) trie) empty toClean
          foldWithKeysC (deleteFolder builddir)

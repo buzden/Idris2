@@ -182,7 +182,7 @@ mutual
       needsBind (Just (UN t))
           = let ns = findBindableNames False [] [] ret
                 allNs = findAllNames [] ret in
-                ((UN t) `elem` allNs) && not (t `elem` (map Builtin.fst ns))
+                ((UN t) `elem` allNs) && not (t `elem` (map Pair.fst ns))
       needsBind _ = False
   toPTerm p (IPi fc rig pt n arg ret)
       = do arg' <- toPTerm appPrec arg

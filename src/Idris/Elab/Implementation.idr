@@ -219,7 +219,7 @@ elabImplementation {vars} fc vis opts_in pass env nest is cons iname ps named im
                traverse_ (processDecl [] nest env) (map mkTopMethDecl fns)
 
                -- 3. Build the record for the implementation
-               let mtops = map (Builtin.fst . snd) fns
+               let mtops = map (Pair.fst . snd) fns
                let con = iconstructor cdata
                let ilhs = impsApply (IVar fc impName)
                                     (map (\x => (x, IBindVar fc (show x)))

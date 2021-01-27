@@ -974,8 +974,8 @@ mkPatClause fc fn args ty pid (ps, rhs)
                         pure (Nothing,
                                 Stuck (embed {more = arg :: args}
                                         !(quote empty [] t)))
-             pure (MkInfo p First (Builtin.snd fa_tys)
-                      :: weaken !(mkNames args ps eq (Builtin.fst fa_tys)))
+             pure (MkInfo p First (Pair.snd fa_tys)
+                      :: weaken !(mkNames args ps eq (Pair.fst fa_tys)))
 
 export
 patCompile : {auto c : Ref Ctxt Defs} ->

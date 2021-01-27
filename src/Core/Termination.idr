@@ -450,10 +450,10 @@ checkSC : {auto a : Ref APos Arg} ->
           Core Terminating
 checkSC defs f args path
    = do log "totality.termination.sizechange" 7 $ "Checking Size Change Graph: " ++ show !(toFullNames f)
-        let pos = (f, map (map Builtin.fst) args)
+        let pos = (f, map (map Pair.fst) args)
         if pos `elem` path
            then do log "totality.termination.sizechange.inPath" 8 $ "Checking arguments: " ++ show !(toFullNames f)
-                   toFullNames $ checkDesc (mapMaybe (map Builtin.snd) args) path
+                   toFullNames $ checkDesc (mapMaybe (map Pair.snd) args) path
            else case !(lookupCtxtExact f (gamma defs)) of
                      Nothing => do log "totality.termination.sizechange.isTerminating" 8 $ "Size Change Graph is Terminating for: " ++ show !(toFullNames f)
                                    pure IsTerminating

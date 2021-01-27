@@ -665,11 +665,11 @@ mutual
            -- Look for implicitly bindable names in the parameters
            let pnames = ifThenElse !isUnboundImplicits
                           (concatMap (findBindableNames True
-                                         (ps ++ map Builtin.fst params) [])
-                                       (map Builtin.snd params'))
+                                         (ps ++ map Pair.fst params) [])
+                                       (map Pair.snd params'))
                           []
-           let paramsb = map (\ ntm => (Builtin.fst ntm,
-                                        doBind pnames (Builtin.snd ntm))) params'
+           let paramsb = map (\ ntm => (Pair.fst ntm,
+                                        doBind pnames (Pair.snd ntm))) params'
            pure [IParameters fc paramsb (concat pds')]
   desugarDecl ps (PUsing fc uimpls uds)
       = do syn <- get Syn
@@ -702,7 +702,7 @@ mutual
            let bnames = ifThenElse !isUnboundImplicits
                           (concatMap (findBindableNames True
                                       (ps ++ mnames ++ paramNames) [])
-                                  (map Builtin.snd cons') ++
+                                  (map Pair.snd cons') ++
                            concatMap (findBindableNames True
                                       (ps ++ mnames ++ paramNames) [])
                                   (map (snd . snd) params'))
