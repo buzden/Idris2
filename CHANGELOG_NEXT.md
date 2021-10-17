@@ -1,5 +1,7 @@
 
-This CHANGELOG describes the merged but unreleased changes. Please see [CHANGELOG](./CHANGELOG.md) for changes to all previously released versions of Idris2. All new PRs should target this file (`CHANGELOG_NEXT`).
+This CHANGELOG describes the merged but unreleased changes.
+Please see [CHANGELOG](./CHANGELOG.md) for changes to all previously released versions of Idris2.
+All new PRs should target this file (`CHANGELOG_NEXT`).
 
 # Changelog
 
@@ -117,6 +119,9 @@ This CHANGELOG describes the merged but unreleased changes. Please see [CHANGELO
 
 * Reflected trees now make use of `WithFC` to replicate the new location tracking
   in the compiler.
+
+* Elaborator script's expression under the `%runElab` is now typechecked in the context
+  of quantity `0`, because it is present and works only at the compile time
 
 ### Backend changes
 
