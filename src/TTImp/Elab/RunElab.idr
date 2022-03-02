@@ -5,11 +5,11 @@ import Core.Context.Log
 import Core.Core
 import Core.Env
 import Core.Metadata
-import Core.Normalise
 import Core.Options
 import Core.Reflect
 import Core.Unify
 import Core.TT
+import Core.SchemeEval
 import Core.Value
 
 import Idris.Syntax
@@ -45,6 +45,16 @@ Reflect NameInfo where
       = do nt <- reflect fc defs lhs env (nametype inf)
            appCon fc defs (reflectiontt "MkNameInfo") [nt]
 
+quote : Ref Ctxt Defs => {vars : _} -> Defs -> Env Term vars -> SNF vars -> Core (Term vars)
+quote defs env expr = do
+  originalDefs <- get Ctxt
+  put Ctxt defs *> SchemeEval.Quote.quote env expr <* put Ctxt originalDefs
+
+snfAll' : Ref Ctxt Defs => {vars : _} -> Defs -> Env Term vars -> Term vars -> Core (SNF vars)
+snfAll' defs env term = do
+  originalDefs <- get Ctxt
+  put Ctxt defs *> snfAll env term <* put Ctxt originalDefs
+
 export
 elabScript : {vars : _} ->
              {auto c : Ref Ctxt Defs} ->
@@ -52,29 +62,39 @@ elabScript : {vars : _} ->
              {auto u : Ref UST UState} ->
              {auto s : Ref Syn SyntaxInfo} ->
              FC -> NestedNames vars ->
-             Env Term vars -> NF vars -> Maybe (Glued vars) ->
-             Core (NF vars)
-elabScript fc nest env script@(NDCon nfc nm t ar args) exp
+             Env Term vars -> SNF vars -> Maybe (Glued vars) ->
+             Core (SNF vars)
+elabScript fc nest env script@(SDCon nfc nm t ar args) exp
     = do defs <- get Ctxt
          fnm <- toFullNames nm
          case fnm of
               NS ns (UN (Basic n))
                  => if ns == reflectionNS
-                      then elabCon defs n (map snd args)
+                      then elabCon defs n args
                       else failWith defs $ "bad reflection namespace " ++ show ns
               _ => failWith defs $ "bad fullnames " ++ show fnm
   where
+    evalClosure : Defs -> Core (SNF vars) -> Core (SNF vars)
+    evalClosure defs closure = closure -- FIXME! I'm ignoring `Defs` argument here!
+
+    -- This seems to be pretty expensite, should use only when cannot do without
+    snfToNf : Defs -> Env Term vars -> SNF vars -> Core (NF vars)
+    snfToNf defs env snf = nf defs env !(quote defs env snf)
+
+    reify : Reify a => Defs -> SNF vars -> Core a
+    reify defs snf = Reflect.reify defs !(snfToNf defs env snf) -- XXX I'm not sure I'm sending the right `env`
+
     failWith : Defs -> String -> Core a
     failWith defs desc
       = do empty <- clearDefs defs
            throw (BadRunElab fc env !(quote empty env script) desc)
 
-    scriptRet : Reflect a => a -> Core (NF vars)
+    scriptRet : Reflect a => a -> Core (SNF vars)
     scriptRet tm
         = do defs <- get Ctxt
-             nfOpts withAll defs env !(reflect fc defs False env tm)
+             snfAll env !(reflect fc defs False env tm)
 
-    elabCon : Defs -> String -> List (Closure vars) -> Core (NF vars)
+    elabCon : Defs -> String -> List (Core (SNF vars)) -> Core (SNF vars)
     elabCon defs "Pure" [_,val]
         = do empty <- clearDefs defs
              evalClosure empty val
@@ -82,11 +102,11 @@ elabScript fc nest env script@(NDCon nfc nm t ar args) exp
         = do act' <- elabScript fc nest env
                                 !(evalClosure defs act) exp
              case !(evalClosure defs k) of
-                  NBind _ x (Lam _ _ _ _) sc =>
+                  SBind _ x (Lam _ _ _ _) sc =>
                       elabScript fc nest env
-                              !(sc defs (toClosure withAll env
+                              !(sc !(seval EvalAll env
                                               !(quote defs env act'))) exp
-                  x => failWith defs $ "non-function RHS of a Bind: " ++ show x
+                  x => failWith defs $ "non-function RHS of a Bind" -- ++ show x
     elabCon defs "Fail" [_, mbfc, msg]
         = do msg' <- evalClosure defs msg
              let customFC = case !(evalClosure defs mbfc >>= reify defs) of
@@ -129,9 +149,9 @@ elabScript fc nest env script@(NDCon nfc nm t ar args) exp
              e <- newRef EST (initEState tidx env)
              (checktm, _) <- runDelays (const True) $
                      check top (initElabInfo InExpr) nest env !(reify defs ttimp')
-                           (Just (glueBack defs env exp'))
+                           (Just (glueBack defs env !(snfToNf defs env exp')))
              empty <- clearDefs defs
-             nf empty env checktm
+             snfAll' empty env checktm
     elabCon defs "Quote" [exp, tm]
         = do tm' <- evalClosure defs tm
              defs <- get Ctxt
@@ -139,28 +159,28 @@ elabScript fc nest env script@(NDCon nfc nm t ar args) exp
              scriptRet $ map rawName !(unelabUniqueBinders env !(quote empty env tm'))
     elabCon defs "Lambda" [x, _, scope]
         = do empty <- clearDefs defs
-             NBind bfc x (Lam fc' c p ty) sc <- evalClosure defs scope
+             SBind bfc x (Lam fc' c p ty) sc <- evalClosure defs scope
                    | _ => throw (GenericMsg fc "Not a lambda")
              n <- genVarName "x"
-             sc' <- sc defs (toClosure withAll env (Ref bfc Bound n))
-             qsc <- quote empty env sc'
+             sc' <- sc !(seval EvalAll env (Ref bfc Bound n))
+             qsc <- RunElab.quote empty env sc'
              let lamsc = refToLocal n x qsc
              qp <- quotePi p
              qty <- quote empty env ty
-             let env' = Lam fc' c qp qty :: env
+             let env' = (::) (Lam fc' c qp qty) env {x}
 
              runsc <- elabScript fc (weaken nest) env'
-                                 !(nf defs env' lamsc) Nothing -- (map weaken exp)
-             nf empty env (Bind bfc x (Lam fc' c qp qty) !(quote empty env' runsc))
+                                  !(snfAll' defs env' lamsc) Nothing -- (map weaken exp)
+             snfAll' empty env (Bind bfc x (Lam fc' c qp qty) !(quote empty env' runsc))
        where
-         quotePi : PiInfo (Closure vars) -> Core (PiInfo (Term vars))
+         quotePi : PiInfo xx -> Core (PiInfo (Term vars))
          quotePi Explicit = pure Explicit
          quotePi Implicit = pure Implicit
          quotePi AutoImplicit = pure AutoImplicit
          quotePi (DefImplicit t) = throw (GenericMsg fc "Can't add default lambda")
     elabCon defs "Goal" []
         = do let Just gty = exp
-                 | Nothing => nfOpts withAll defs env
+                 | Nothing => snfAll' defs env
                                      !(reflect fc defs False env (the (Maybe RawImp) Nothing))
              ty <- getTerm gty
              scriptRet (Just $ map rawName $ !(unelabUniqueBinders env ty))
@@ -237,10 +257,10 @@ checkRunElab rig elabinfo nest env fc script exp
                            check rig elabinfo nest env script (Just (gnf env elabtt))
          defs <- get Ctxt -- checking might have resolved some holes
          ntm <- elabScript fc nest env
-                           !(nfOpts withAll defs env stm) (Just (gnf env expected))
+                           !(snfAll env stm) (Just (gnf env expected))
          defs <- get Ctxt -- might have updated as part of the script
          empty <- clearDefs defs
-         pure (!(quote empty env ntm), gnf env expected)
+         pure (!(RunElab.quote empty env ntm), gnf env expected)
   where
     mkExpected : Maybe (Glued vars) -> Core (Term vars)
     mkExpected (Just ty) = pure !(getTerm ty)

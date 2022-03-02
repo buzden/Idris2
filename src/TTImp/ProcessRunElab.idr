@@ -7,6 +7,7 @@ import Core.Metadata
 import Core.Options
 import Core.Normalise
 import Core.Reflect
+import Core.SchemeEval
 import Core.UnifyState
 import Core.Value
 
@@ -37,4 +38,4 @@ processRunElab eopts nest env fc tm
          exp <- appCon fc defs n [unit]
 
          stm <- checkTerm tidx InExpr eopts nest env tm (gnf env exp)
-         ignore $ elabScript fc nest env !(nfOpts withAll defs env stm) Nothing
+         ignore $ elabScript fc nest env !(snfAll env stm) Nothing
