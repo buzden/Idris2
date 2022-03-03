@@ -55,6 +55,11 @@ snfAll' defs env term = do
   originalDefs <- get Ctxt
   put Ctxt defs *> snfAll env term <* put Ctxt originalDefs
 
+sevalAll' : Ref Ctxt Defs => Defs -> Env Term vars -> Term vars -> Core (SObj vars)
+sevalAll' defs env term = do
+  originalDefs <- get Ctxt
+  put Ctxt defs *> seval EvalAll env term <* put Ctxt originalDefs
+
 export
 elabScript : {vars : _} ->
              {auto c : Ref Ctxt Defs} ->
@@ -104,7 +109,7 @@ elabScript fc nest env script@(SDCon nfc nm t ar args) exp
              case !(evalClosure defs k) of
                   SBind _ x (Lam _ _ _ _) sc =>
                       elabScript fc nest env
-                              !(sc !(seval EvalAll env
+                              !(sc !(sevalAll' defs env
                                               !(quote defs env act'))) exp
                   x => failWith defs $ "non-function RHS of a Bind" -- ++ show x
     elabCon defs "Fail" [_, mbfc, msg]
@@ -162,7 +167,7 @@ elabScript fc nest env script@(SDCon nfc nm t ar args) exp
              SBind bfc x (Lam fc' c p ty) sc <- evalClosure defs scope
                    | _ => throw (GenericMsg fc "Not a lambda")
              n <- genVarName "x"
-             sc' <- sc !(seval EvalAll env (Ref bfc Bound n))
+             sc' <- sc !(sevalAll' defs env (Ref bfc Bound n))
              qsc <- RunElab.quote empty env sc'
              let lamsc = refToLocal n x qsc
              qp <- quotePi p
