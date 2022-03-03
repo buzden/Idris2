@@ -221,7 +221,10 @@ export
 evalSchemeObj : SchemeObj Write -> IO (Maybe ForeignObj)
 evalSchemeObj obj
     = do let str = toString obj
-         evalSchemeStr str
+         putStrLn "LOG: schemeeval: evaling object \{show str}"
+         res <- evalSchemeStr str
+         putStrLn $ "LOG: schemeeval: eval result: " ++ case res of { Nothing => "fail"; Just _ => "ok" }
+         pure res
   where
     showSep : String -> List String -> String
     showSep sep [] = ""
