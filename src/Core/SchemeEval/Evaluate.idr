@@ -80,7 +80,7 @@ seval mode env tm
          (bind, schEnv) <- mkEnv env id
          stm <- compile schEnv !(toFullNames tm)
          Just res <- coreLift $ evalSchemeObj (bind stm)
-              | Nothing => throw (InternalError "Compiling expression failed")
+              | Nothing => throw (InternalError "Compiling expression failed: \{show @{Verb} stm}")
          pure (MkSObj res schEnv)
   where
     mkEnv : forall vars . Ref Sym Integer =>

@@ -197,6 +197,27 @@ data SchemeObj : Direction -> Type where
      Apply : SchemeObj Write -> List (SchemeObj Write) -> SchemeObj Write
 
 export
+[Verb] Show (SchemeObj dir) where
+  show $ Null         = "Null"
+  show $ Cons x y     = "Cons (\{show x}) (\{show y})"
+  show $ IntegerVal x = "IntegerVar \{show x}"
+  show $ FloatVal x   = "FloatVar \{show x}"
+  show $ StringVal x  = "StringVar \{show x}"
+  show $ CharVal x    = "CharVar \{show x}"
+  show $ Symbol x     = "Symbol \{show x}"
+  show $ Box x        = "Box \{show x}"
+  show $ Vector x xs  = "Vector \{show x} \{assert_total $ show xs}"
+  show $ Procedure x  = "Procedure <foreign_object>"
+  show $ Define x y   = "Define \{show x} (\{show y})"
+  show $ Var x        = "Var \{show x}"
+  show $ Lambda xs x  = "Lambda \{show xs} (\{show x})"
+  show $ Let x y z    = "Let \{show x} (\{show y}) (\{show z})"
+  show $ If x y z     = "If (\{show x}) (\{show y}) (\{show z})"
+  show $ Case x xs y  = "Case (\{show x}) \{assert_total $ show xs} \{assert_total $ show y}"
+  show $ Cond xs x    = "Cond \{assert_total $ show xs} \{assert_total $ show x}"
+  show $ Apply x xs   = "Apply (\{show x}) \{assert_total $ show xs}"
+
+export
 evalSchemeObj : SchemeObj Write -> IO (Maybe ForeignObj)
 evalSchemeObj obj
     = do let str = toString obj
