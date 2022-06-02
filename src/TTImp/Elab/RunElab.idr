@@ -216,6 +216,9 @@ elabScript fc nest env script exp
          empty <- clearDefs defs
          throw (BadRunElab fc env !(quote empty env script) "script is not a data value")
 
+||| Tries to compute elaboration script's value.
+||| If the given script cannot be interpreted as `Elab ?`,
+||| returns the reason as an `Error` in `Left` of `Either`.
 export
 checkRunElab : {vars : _} ->
                {auto c : Ref Ctxt Defs} ->
@@ -227,7 +230,7 @@ checkRunElab : {vars : _} ->
                RigCount -> ElabInfo ->
                NestedNames vars -> Env Term vars ->
                FC -> RawImp -> Maybe (Glued vars) ->
-               Core (Term vars, Glued vars)
+               Core $ Either Error (Term vars, Glued vars)
 checkRunElab rig elabinfo nest env fc script exp
     = do expected <- mkExpected exp
          defs <- get Ctxt
@@ -236,14 +239,15 @@ checkRunElab rig elabinfo nest env fc script exp
          let n = NS reflectionNS (UN $ Basic "Elab")
          let ttn = reflectiontt "TT"
          elabtt <- appCon fc defs n [expected]
-         (stm, sty) <- runDelays (const True) $
-                           check rig elabinfo nest env script (Just (gnf env elabtt))
+         Right (stm, sty) <- tryError $ runDelays (const True) $
+                               check rig elabinfo nest env script (Just (gnf env elabtt))
+           | Left e => pure $ Left e
          defs <- get Ctxt -- checking might have resolved some holes
          ntm <- elabScript fc nest env
                            !(nfOpts withAll defs env stm) (Just (gnf env expected))
          defs <- get Ctxt -- might have updated as part of the script
          empty <- clearDefs defs
-         pure (!(quote empty env ntm), gnf env expected)
+         pure $ Right (!(quote empty env ntm), gnf env expected)
   where
     mkExpected : Maybe (Glued vars) -> Core (Term vars)
     mkExpected (Just ty) = pure !(getTerm ty)
