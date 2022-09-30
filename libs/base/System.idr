@@ -201,6 +201,7 @@ runProcessingOutput : HasIO io => (String -> io ()) -> (cmd : String) -> io Int
 runProcessingOutput pr cmd = do
   Right f <- popen cmd Read
     | Left err => pure 1
+  setBufferingMode LineBuffered f
   True <- process f
     | False => pure 1 -- we do not close `f` in case of reading error, like `run` does
   pclose f
