@@ -3,6 +3,7 @@ module System.File
 import Data.Buffer
 
 import public System.File.Buffer
+import public System.File.Buffering
 import public System.File.Error
 import public System.File.Handle
 import public System.File.Meta
