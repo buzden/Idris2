@@ -313,7 +313,7 @@ chezTests = MkTestPool "Chez backend" [] (Just Chez)
     , "bitops"
     , "casts"
     , "constfold", "constfold2", "constfold3"
-    , "memo"
+    , "memo001", "memo002"
     , "newints"
     , "integers"
     , "nat2fin"
