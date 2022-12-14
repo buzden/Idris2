@@ -37,15 +37,13 @@
 * Non-recursive top-level constants are compiled to eagerly evaluated
   constants in Chez Scheme.
 
-* `Lazy` values are *weakly* memoised. That is, once accessed, they are allowed
+* `Lazy` and `Inf` values are *weakly* memoised. That is, once accessed, they are allowed
   to be not re-evaluated until garbage collector wipes them.
-  Unlike `Lazy`, `Inf` values are not memoised.
 
 #### Racket
 
-* `Lazy` values are *weakly* memoised. That is, once accessed, they are allowed
+* `Lazy` and `Inf` values are *weakly* memoised. That is, once accessed, they are allowed
   to be not re-evaluated until garbage collector wipes them.
-  Unlike `Lazy`, `Inf` values are not memoised.
 
 #### Node.js/Browser
 
