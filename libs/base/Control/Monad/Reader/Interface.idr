@@ -32,7 +32,6 @@ asks f = map f ask
 public export %inline
 Monad m => MonadReader stateType (ReaderT stateType m) where
   ask = MkReaderT (\st => pure st)
-
   local f (MkReaderT action) = MkReaderT (action . f)
 
 public export %inline
@@ -41,32 +40,6 @@ Monad m => MonadReader r (RWST r w s m) where
   local f m = MkRWST $ \r,s,w => unRWST m (f r) s w
 
 public export %inline
-MonadReader r m => MonadReader r (EitherT e m) where
-  ask = lift ask
-  local = mapEitherT . local
-
-public export %inline
-MonadReader r m => MonadReader r (MaybeT m) where
-  ask = lift ask
-  local = mapMaybeT . local
-
-public export %inline
-MonadReader r m => MonadReader r (StateT s m) where
-  ask = lift ask
-  local = mapStateT . local
-
-public export %inline
-MonadReader r m => MonadReader r (WriterT w m) where
-  ask   = lift ask
-
-  -- this differs from the implementation in the mtl package
-  -- which uses mapWriterT. However, it seems strange that
-  -- this should require a Monoid instance to further
-  -- accumulate values, while the implementation of
-  -- MonadReader for RWST does no such thing.
-  local f (MkWriterT m) = MkWriterT $ \w => local f (m w)
-
-public export %inline
-[Trans] MonadReader r m => StrongMonadTrans t => Monad (t m) => MonadReader r (t m) where
+MonadReader r m => StrongMonadTrans t => Monad (t m) => MonadReader r (t m) where
   ask   = lift ask
   local = liftF . local

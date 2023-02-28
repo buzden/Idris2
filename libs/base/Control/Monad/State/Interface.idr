@@ -50,37 +50,13 @@ Monad m => MonadState stateType (StateT stateType m) where
     state f = ST $ pure . f
 
 public export %inline
-MonadState s m => MonadState s (EitherT e m) where
-  get = lift get
-  put = lift . put
-  state = lift . state
-
-public export %inline
-MonadState s m => MonadState s (MaybeT m) where
-  get = lift get
-  put = lift . put
-  state = lift . state
-
-public export %inline
 Monad m => MonadState s (RWST r w s m) where
   get     = MkRWST $ \_,s,w => pure (s,s,w)
   put s   = MkRWST $ \_,_,w => pure ((),s,w)
   state f = MkRWST $ \_,s,w => let (s',a) = f s in pure (a,s',w)
 
 public export %inline
-MonadState s m => MonadState s (ReaderT r m) where
-  get = lift get
-  put = lift . put
-  state = lift . state
-
-public export %inline
-MonadState s m => MonadState s (WriterT r m) where
-  get = lift get
-  put = lift . put
-  state = lift . state
-
-public export %inline
-[Trans] MonadState s m => MonadTrans t => Monad (t m) => MonadState s (t m) where
+MonadState s m => MonadTrans t => Monad (t m) => MonadState s (t m) where
   get   = lift get
   put   = lift . put
   state = lift . state

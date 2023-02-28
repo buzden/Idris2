@@ -81,45 +81,7 @@ public export %inline
              (\((a,f),s',w') => (a,s',w <+> f w')) <$> runRWST r s m
 
 public export %inline
-MonadWriter w m => MonadWriter w (EitherT e m) where
-  writer = lift . writer
-  tell   = lift . tell
-  listen = mapEitherT $ \m => do (e,w) <- listen m
-                                 pure $ map (\a => (a,w)) e
-
-  pass   = mapEitherT $ \m => pass $ do Right (r,f) <- m
-                                          | Left l => pure $ (Left l, id)
-                                        pure (Right r, f)
-
-public export %inline
-MonadWriter w m => MonadWriter w (MaybeT m) where
-  writer = lift . writer
-  tell   = lift . tell
-  listen = mapMaybeT $ \m => do (e,w) <- listen m
-                                pure $ map (\a => (a,w)) e
-
-  pass   = mapMaybeT $ \m => pass $ do Just (r,f) <- m
-                                         | Nothing => pure $ (Nothing, id)
-                                       pure (Just r, f)
-public export %inline
-MonadWriter w m => MonadWriter w (ReaderT r m) where
-  writer = lift . writer
-  tell   = lift . tell
-  listen = mapReaderT listen
-  pass   = mapReaderT pass
-
-public export %inline
-MonadWriter w m => MonadWriter w (StateT s m) where
-  writer = lift . writer
-  tell   = lift . tell
-  listen (ST m) = ST $ \s => do ((s',a),w) <- listen (m s)
-                                pure (s',(a,w))
-
-  pass   (ST m) = ST $ \s => pass $ do (s',(a,f)) <- m s
-                                       pure ((s',a),f)
-
-public export %inline
-[Trans] MonadWriter w m => StrongMonadTrans t => Monad (t m) => MonadWriter w (t m) where
+MonadWriter w m => StrongMonadTrans t => Monad (t m) => MonadWriter w (t m) where
   writer = lift . writer
   tell   = lift . tell
   listen = liftF listen

@@ -16,5 +16,4 @@ public export
 (Monoid w, Monad m) => MonadRWS r w s (RWST r w s m) where
 
 public export
-[Trans] MonadRWS r w s m => Monoid w => StrongMonadTrans t => Monad (t m) => MonadRWS r w s (t m)
-  using Reader.Interface.Trans State.Interface.Trans Writer.Interface.Trans where
+MonadRWS r w s m => Monoid w => StrongMonadTrans t => Monad (t m) => MonadRWS r w s (t m) where
