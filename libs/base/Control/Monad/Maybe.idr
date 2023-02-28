@@ -168,5 +168,11 @@ MonadTrans MaybeT where
   lift = MkMaybeT . map Just
 
 public export
+StrongMonadTrans MaybeT where
+  liftF f $ MkMaybeT m = MkMaybeT $ m >>= \case
+    Nothing => pure Nothing
+    Just x  => f (pure x) <&> Just
+
+public export
 HasIO m => HasIO (MaybeT m) where
   liftIO act = MkMaybeT $ liftIO (io_bind act (pure . Just))

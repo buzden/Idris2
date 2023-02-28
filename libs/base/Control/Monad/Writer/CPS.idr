@@ -105,5 +105,9 @@ MonadTrans (WriterT w) where
   lift m = MkWriterT $ \w => map (\a => (a,w)) m
 
 public export %inline
+StrongMonadTrans (WriterT w) where
+  liftF f $ MkWriterT m = MkWriterT $ \w => m w >>= \(x, w') => f (pure x) <&> (, w')
+
+public export %inline
 HasIO m => HasIO (WriterT w m) where
   liftIO = lift . liftIO

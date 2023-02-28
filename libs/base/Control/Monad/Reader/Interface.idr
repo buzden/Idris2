@@ -65,3 +65,8 @@ MonadReader r m => MonadReader r (WriterT w m) where
   -- accumulate values, while the implementation of
   -- MonadReader for RWST does no such thing.
   local f (MkWriterT m) = MkWriterT $ \w => local f (m w)
+
+public export %inline
+[Trans] MonadReader r m => StrongMonadTrans t => Monad (t m) => MonadReader r (t m) where
+  ask   = lift ask
+  local = liftF . local

@@ -95,6 +95,10 @@ implementation MonadTrans (StateT stateType) where
     lift x = ST $ \st => (st,) <$> x
 
 public export
+implementation StrongMonadTrans (StateT stateType) where
+    liftF f $ ST x = ST $ \s => x s >>= \(s', y) => f (pure y) <&> (s',)
+
+public export
 implementation (Monad f, Alternative f) => Alternative (StateT st f) where
     empty = lift empty
     ST f <|> mg = ST $ \st => f st <|> runStateT' mg st

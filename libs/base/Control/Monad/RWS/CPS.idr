@@ -144,5 +144,10 @@ MonadTrans (RWST r w s) where
   lift m = MkRWST $ \_,s,w => map (\a => (a,s,w)) m
 
 public export %inline
+StrongMonadTrans (RWST r w s) where
+  liftF f $ MkRWST c = MkRWST $ \r, s, w => c r s w >>= \case
+    (x, sw') => f (pure x) <&> (, sw')
+
+public export %inline
 HasIO m => HasIO (RWST r w s m) where
   liftIO = lift . liftIO

@@ -70,6 +70,12 @@ public export
 MonadTrans ParseT where
     lift x = P $ \s => map (flip OK s) x
 
+public export
+StrongMonadTrans ParseT where
+    liftF f $ P x = P $ \s => x s >>= \case
+      Fail n s => pure $ Fail n s
+      OK y st  => f (pure y) <&> \z => OK z st
+
 ||| Run a parser in a monad
 ||| Returns a tuple of the result and final position on success.
 ||| Returns an error message on failure.

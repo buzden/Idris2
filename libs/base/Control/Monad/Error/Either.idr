@@ -155,5 +155,11 @@ MonadTrans (EitherT e) where
   lift = MkEitherT . map Right
 
 public export
+StrongMonadTrans (EitherT e) where
+  liftF f $ MkEitherT e = MkEitherT $ e >>= \case
+    Left e  => pure $ Left e
+    Right x => f (pure x) <&> Right
+
+public export
 HasIO m => HasIO (EitherT e m) where
   liftIO act = MkEitherT $ liftIO (io_bind act (pure . Right))

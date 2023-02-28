@@ -117,3 +117,10 @@ MonadWriter w m => MonadWriter w (StateT s m) where
 
   pass   (ST m) = ST $ \s => pass $ do (s',(a,f)) <- m s
                                        pure ((s',a),f)
+
+public export %inline
+[Trans] MonadWriter w m => StrongMonadTrans t => Monad (t m) => MonadWriter w (t m) where
+  writer = lift . writer
+  tell   = lift . tell
+  listen = liftF listen
+  pass   = liftF pass
