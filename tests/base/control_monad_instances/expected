@@ -1,3 +1,4 @@
 1/1: Building SearchReader (SearchReader.idr)
 1/1: Building SearchWriter (SearchWriter.idr)
 1/1: Building SearchState (SearchState.idr)
+1/1: Building RunWriter (RunWriter.idr)
