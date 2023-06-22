@@ -31,6 +31,19 @@
         (begin (set-car! e (box val)) val))
       (unbox exval))))
 
+; Cache is not a weak hash table! TODO to use ephemerons somehow
+(define blodwen-mk-fun-cache
+  (lambda ()
+    (make-hashtable equal-hash equal?)))
+
+; Cache is not a weak hash table! TODO to use ephemerons somehow
+(define (blodwen-fun-uncache cache key generator)
+  (let ((exval (hashtable-ref cache key #!bwp)))
+    (if (bwp-object? exval)
+      (let ((val (generator)))
+        (begin (hashtable-set! cache key val) val))
+      exval)))
+
 (define (blodwen-toSignedInt x bits)
   (if (logbit? bits x)
       (logor x (ash -1 bits))

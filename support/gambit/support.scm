@@ -16,7 +16,7 @@
 
 (define blodwen-lazy
   (lambda (f)
-    (let ([evaluated #f] [res void])
+    (let ((evaluated #f) (res void))
       (lambda ()
         (if (not evaluated)
             (begin (set! evaluated #t)
@@ -30,6 +30,18 @@
 
 (define (blodwen-force-lazy f)
   (f))
+
+(define blodwen-mk-fun-cache
+  (make-table weak-keys: #t weak-values: #t test: equal? hash: equal?-hash))
+
+(define cache-miss 'cache-miss)
+
+(define (blodwen-fun-uncache cache key generator)
+  (let ((exval (table-ref cache key cache-miss)))
+    (if (eq? exval cache-miss)
+      (let ((val (generator)))
+        (begin (table-set! cache key val) val))
+      exval)))
 
 (define (blodwen-toSignedInt x bits)
   (if (bit-set? bits x)

@@ -28,6 +28,11 @@
         (begin (set-mcar! e (make-weak-box val)) val))
       exval)))
 
+(define blodwen-mk-fun-cache make-ephemeron-hash)
+
+(define (blodwen-fun-uncache cache key generator)
+  (hash-ref! cache key generator))
+
 (define (blodwen-toSignedInt x bits)
   (if (bitwise-bit-set? x bits)
       (bitwise-ior x (arithmetic-shift (- 1) bits))

@@ -208,6 +208,7 @@ idrisTestsAllSchemes cg = MkTestPool
       , "channels001", "channels002", "channels003", "channels004", "channels005"
       , "channels006"
       , "memo001", "memo002", "memo003", "memo004"
+      , "memofun001", "memofun002"
       ]
 
 idrisTestsAllBackends : Requirement -> TestPool

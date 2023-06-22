@@ -658,8 +658,23 @@ parameters (constants : SortedSet Name,
           else pure $ "(define " ++ schName !(getFullName n) ++ " (lambda () " ++ !(schExp 0 exp) ++ "))\n"
 
   schDef n (MkNmFun args exp)
-     = pure $ "(define " ++ schName !(getFullName n) ++ " (lambda (" ++ schArglist args ++ ") "
-                      ++ !(schExp 0 exp) ++ "))\n"
+     = do let name = schName !(getFullName n)
+          let args = schArglist args
+          let exprBody = !(schExp 0 exp)
+
+          defs <- get Ctxt
+          memoise <- maybe False (elem Memoise . flags) <$> lookupCtxtExact n (gamma defs)
+
+          if not memoise
+            then pure $ "(define " ++ name ++ " (lambda (" ++ args ++ ") " ++ exprBody ++ "))\n"
+            else do
+              let cacheName = name ++ "--cache"
+              let cachedBody = "(blodwen-fun-uncache " ++
+                                 cacheName ++
+                                 " (list " ++ args ++ ")" ++
+                                 " (lambda () " ++ exprBody ++ "))"
+              pure $ "(define " ++ cacheName ++ " (blodwen-mk-fun-cache))\n" ++
+                     "(define " ++ name ++ " (lambda (" ++ args ++ ") " ++ cachedBody ++ "))\n"
   schDef n (MkNmError exp)
      = pure $ "(define (" ++ schName !(getFullName n) ++ " . any-args) " ++ !(schExp 0 exp) ++ ")\n"
   schDef n (MkNmForeign _ _ _) = pure "" -- compiled by specific back end
