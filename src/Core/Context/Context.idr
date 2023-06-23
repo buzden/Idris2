@@ -195,6 +195,7 @@ public export
 data DefFlag
     = Inline
     | NoInline
+    | Memoise
     | ||| A definition has been marked as deprecated
       Deprecate
     | Invertible -- assume safe to cancel arguments in unification
@@ -230,6 +231,7 @@ export
 Eq DefFlag where
     (==) Inline Inline = True
     (==) NoInline NoInline = True
+    (==) Memoise Memoise = True
     (==) Deprecate Deprecate = True
     (==) Invertible Invertible = True
     (==) Overloadable Overloadable = True
@@ -247,6 +249,7 @@ export
 Show DefFlag where
   show Inline = "inline"
   show NoInline = "noinline"
+  show Memoise = "memoise"
   show Deprecate = "deprecate"
   show Invertible = "invertible"
   show Overloadable = "overloadable"

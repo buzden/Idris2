@@ -278,6 +278,7 @@ mutual
                (UN (Basic "Inline"), _) => pure Inline
                (UN (Basic "Unsafe"), _) => pure Unsafe
                (UN (Basic "NoInline"), _) => pure NoInline
+               (UN (Basic "Memoise"), _) => pure Memoise
                (UN (Basic "Deprecate"), _) => pure Deprecate
                (UN (Basic "TCInline"), _) => pure TCInline
                (UN (Basic "Hint"), [(_, x)])
@@ -656,6 +657,7 @@ mutual
     reflect fc defs lhs env Unsafe = getCon fc defs (reflectionttimp "Unsafe")
     reflect fc defs lhs env Inline = getCon fc defs (reflectionttimp "Inline")
     reflect fc defs lhs env NoInline = getCon fc defs (reflectionttimp "NoInline")
+    reflect fc defs lhs env Memoise = getCon fc defs (reflectionttimp "Memoise")
     reflect fc defs lhs env Deprecate = getCon fc defs (reflectionttimp "Deprecate")
     reflect fc defs lhs env TCInline = getCon fc defs (reflectionttimp "TCInline")
     reflect fc defs lhs env (Hint x)

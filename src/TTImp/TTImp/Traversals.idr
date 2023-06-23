@@ -33,6 +33,7 @@ parameters (f : RawImp' nm -> RawImp' nm)
   mapFnOpt Unsafe = Unsafe
   mapFnOpt Inline = Inline
   mapFnOpt NoInline = NoInline
+  mapFnOpt Memoise = Memoise
   mapFnOpt Deprecate = Deprecate
   mapFnOpt TCInline = TCInline
   mapFnOpt (Hint b) = Hint b

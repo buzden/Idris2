@@ -343,6 +343,7 @@ mutual
     toBuf b Unsafe = tag 13
     toBuf b Deprecate = tag 14
     toBuf b (ForeignExport cs) = do tag 15; toBuf b cs
+    toBuf b Memoise = tag 16
 
     fromBuf b
         = case !getTag of
@@ -362,6 +363,7 @@ mutual
                13 => pure Unsafe
                14 => pure Deprecate
                15 => do cs <- fromBuf b; pure (ForeignExport cs)
+               16 => pure Memoise
                _ => corrupt "FnOpt"
 
   export

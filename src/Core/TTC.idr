@@ -1033,6 +1033,7 @@ TTC TotalReq where
 TTC DefFlag where
   toBuf b Inline = tag 2
   toBuf b NoInline = tag 13
+  toBuf b Memoise = tag 16
   toBuf b Deprecate = tag 15
   toBuf b Invertible = tag 3
   toBuf b Overloadable = tag 4
@@ -1060,6 +1061,7 @@ TTC DefFlag where
              12 => do x <- fromBuf b; pure (Identity x)
              13 => pure NoInline
              15 => pure Deprecate
+             16 => pure Memoise
              _ => corrupt "DefFlag"
 
 export

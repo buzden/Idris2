@@ -115,6 +115,7 @@ mutual
     map f Unsafe = Unsafe
     map f Inline = Inline
     map f NoInline = NoInline
+    map f Memoise = Memoise
     map f Deprecate = Deprecate
     map f TCInline = TCInline
     map f (Hint b) = Hint b

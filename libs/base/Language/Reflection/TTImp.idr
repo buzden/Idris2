@@ -103,6 +103,7 @@ mutual
   data FnOpt : Type where
        Inline : FnOpt
        NoInline : FnOpt
+       Memoise : FnOpt
        Deprecate : FnOpt
        TCInline : FnOpt
        -- Flag means the hint is a direct hint, not a function which might
@@ -337,6 +338,7 @@ parameters {auto eqTTImp : Eq TTImp}
   Eq FnOpt where
     Inline == Inline = True
     NoInline == NoInline = True
+    Memoise == Memoise = True
     Deprecate == Deprecate = True
     TCInline == TCInline = True
     Hint b == Hint b' = b == b'
@@ -724,6 +726,7 @@ parameters (f : TTImp -> TTImp)
   mapFnOpt : FnOpt -> FnOpt
   mapFnOpt Inline = Inline
   mapFnOpt NoInline = NoInline
+  mapFnOpt Memoise = Memoise
   mapFnOpt Deprecate = Deprecate
   mapFnOpt TCInline = TCInline
   mapFnOpt (Hint b) = Hint b
@@ -845,6 +848,7 @@ parameters {0 m : Type -> Type} {auto mon : Monad m} (f : TTImp -> m TTImp)
   mapMFnOpt : FnOpt -> m FnOpt
   mapMFnOpt Inline = pure Inline
   mapMFnOpt NoInline = pure NoInline
+  mapMFnOpt Memoise = pure Memoise
   mapMFnOpt Deprecate = pure Deprecate
   mapMFnOpt TCInline = pure TCInline
   mapMFnOpt (Hint b) = pure (Hint b)

@@ -1503,6 +1503,9 @@ fnDirectOpt fname
   <|> do decoratedPragma fname "noinline"
          commit
          pure $ IFnOpt NoInline
+  <|> do decoratedPragma fname "memoise"
+         commit
+         pure $ IFnOpt Memoise
   <|> do decoratedPragma fname "deprecate"
          commit
          pure $ IFnOpt Deprecate
