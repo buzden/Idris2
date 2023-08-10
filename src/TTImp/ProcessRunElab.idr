@@ -38,5 +38,10 @@ processRunElab eopts nest env fc tm
          unit <- getCon fc defs (builtin "Unit")
          exp <- appCon fc defs n [unit]
 
+         defs <- get Ctxt
+         let oldNestedNS = nestedNS defs
+         update Ctxt {nestedNS $= (++ (snd . snd . snd <$> allImported defs))}
          stm <- checkTerm tidx InExpr (OverrideRig bot :: eopts) nest env tm (gnf env exp)
+         update Ctxt {nestedNS := oldNestedNS}
+
          ignore $ elabScript top fc nest env !(nfOpts withAll defs env stm) Nothing
