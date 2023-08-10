@@ -120,7 +120,9 @@ elabTermSub {vars} defining mode opts nest env env' sub tm ty
 
          defs <- get Ctxt
          e <- newRef EST (initEStateSub defining env' sub)
-         let rigc = getRigNeeded mode
+         let rigc = case foldMap (\case OverrideRig x => Just x; _ => Nothing) opts of
+                      Nothing => getRigNeeded mode
+                      Just x  => x
 
          (chktm, chkty) <- check {e} rigc (initElabInfo mode) nest env tm ty
          -- Final retry of constraints and delayed elaborations

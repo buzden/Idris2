@@ -49,6 +49,7 @@ data ElabOpt
   | InCase
   | InPartialEval
   | InTrans
+  | OverrideRig RigCount
 
 public export
 Eq ElabOpt where
@@ -56,6 +57,7 @@ Eq ElabOpt where
   InCase == InCase = True
   InPartialEval == InPartialEval = True
   InTrans == InTrans = True
+  OverrideRig x == OverrideRig y = x == y
   _ == _ = False
 
 -- Descriptions of implicit name bindings. They're either just the name,
