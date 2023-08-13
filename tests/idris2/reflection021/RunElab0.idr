@@ -10,4 +10,4 @@ elabScript = pure ()
 x : Unit
 x = %runElab elabScript
 
-%runElab elabScript
+-- %runElab elabScript
