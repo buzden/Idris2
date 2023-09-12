@@ -399,8 +399,10 @@ mutual
     <|> do b <- bounds (continueWith indents ")")
            pure (PUnit (boundToFC fname (mergeBounds s b)))
       -- dependent pairs with type annotation (so, the type form)
-    <|> do dpairType fname s indents <* (decorate fname Typ $ symbol ")")
-                                     <* actD (toNonEmptyFC $ boundToFC fname s, Typ, Nothing)
+    <|> do t <- dpairType fname s indents
+           decorate fname Typ $ symbol ")"
+           actD (toNonEmptyFC $ boundToFC fname s, Typ, Nothing)
+           pure t
     <|> do e <- bounds (typeExpr pdef fname indents)
            -- dependent pairs with no type annotation
            (do loc <- bounds (symbol "**")
