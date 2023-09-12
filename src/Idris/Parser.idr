@@ -404,7 +404,7 @@ mutual
     <|> do e <- bounds (typeExpr pdef fname indents)
            -- dependent pairs with no type annotation
            (do loc <- bounds (symbol "**")
-               rest <- bounds ((nestedDpair fname loc indents <|> expr pdef fname indents) <* symbol ")")
+               rest <- bounds ((nestedDpair fname loc indents <|> expr pdef fname indents) <* decoratedSymbol fname ")")
                pure (PDPair (boundToFC fname (mergeBounds s rest))
                             (boundToFC fname loc)
                             e.val
@@ -591,7 +591,7 @@ mutual
            pure (PQuoteDecl (boundToFC fname b) (collectDefs (concat b.val)))
     <|> do b <- bounds (decoratedSymbol fname "~" *> simpleExpr fname indents)
            pure (PUnquote (boundToFC fname b) b.val)
-    <|> do start <- bounds (symbol "(")
+    <|> do start <- bounds (decoratedSymbol fname "(")
            bracketedExpr fname start indents
     <|> do start <- bounds (symbol "[<")
            snocListExpr fname start indents
