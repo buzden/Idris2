@@ -204,18 +204,13 @@ prim__system : String -> PrimIO Int
 ||| Execute a shell command, returning its termination status or -1 if an error
 ||| occurred.
 export
-system : HasIO io => String -> io Int
-system cmd = primIO (prim__system cmd)
-
-namespace Escaped
-  export
-  system : HasIO io => List String -> io Int
-  system = system . escapeCmd
+system : HasIO io => ShellCmd a => a -> io Int
+system = primIO . prim__system . toShellCmd
 
 ||| Run a shell command, returning its stdout, and exit code.
 export
 covering
-run : HasIO io => (cmd : String) -> io (String, Int)
+run : HasIO io => ShellCmd a => (cmd : a) -> io (String, Int)
 run cmd = do
     Right f <- popen cmd Read
         | Left err => pure ("", 1)
@@ -223,12 +218,6 @@ run cmd = do
         | Left err => pure ("", 1)
     exitCode <- pclose f
     pure (resp, exitCode)
-
-namespace Escaped
-  export
-  covering
-  run : HasIO io => (cmd : List String) -> io (String, Int)
-  run = run . escapeCmd
 
 ||| Run a shell command, allowing processing its stdout line by line.
 |||
@@ -238,7 +227,7 @@ namespace Escaped
 ||| This function returns an exit code which value should be consistent with the `run` function.
 export
 covering
-runProcessingOutput : HasIO io => (String -> io ()) -> (cmd : String) -> io Int
+runProcessingOutput : HasIO io => ShellCmd a => (String -> io ()) -> (cmd : a) -> io Int
 runProcessingOutput pr cmd = do
   Right f <- popen cmd Read
     | Left err => pure 1
@@ -253,12 +242,6 @@ runProcessingOutput pr cmd = do
         | Left err => pure False
       pr line
       process h
-
-namespace Escaped
-  export
-  covering
-  runProcessingOutput : HasIO io => (String -> io ()) -> (cmd : List String) -> io Int
-  runProcessingOutput pr = runProcessingOutput pr . escapeCmd
 
 %foreign supportC "idris2_time"
          "javascript:lambda:() => Math.floor(new Date().getTime() / 1000)"

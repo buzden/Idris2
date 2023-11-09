@@ -50,9 +50,9 @@ fflush (FHandle f)
 ||| @ cmd the command to pass to the shell
 ||| @ m   the mode the pipe should have
 export
-popen : HasIO io => (cmd : String) -> (m : Mode) -> io (Either FileError File)
+popen : HasIO io => ShellCmd a => (cmd : a) -> (m : Mode) -> io (Either FileError File)
 popen cmd m = do
-    ptr <- primIO (prim__popen cmd (modeStr m))
+    ptr <- primIO (prim__popen (toShellCmd cmd) (modeStr m))
     if prim__nullAnyPtr ptr /= 0
         then returnError
         else pure (Right (FHandle ptr))
@@ -86,9 +86,9 @@ record SubProcess where
 |||
 ||| This function is not supported on node at this time.
 export
-popen2 : HasIO io => (cmd : String) -> io (Either FileError SubProcess)
+popen2 : HasIO io => ShellCmd a => (cmd : a) -> io (Either FileError SubProcess)
 popen2 cmd = do
-  ptr <- primIO (prim__popen2 cmd)
+  ptr <- primIO $ prim__popen2 $ toShellCmd cmd
   if prim__nullPtr ptr /= 0
     then returnError
     else do
@@ -97,12 +97,3 @@ popen2 cmd = do
       output <- primIO (prim__popen2FileOut ptr)
       free (prim__forgetPtr ptr)
       pure $ Right (MkSubProcess pid (FHandle input) (FHandle output))
-
-namespace Escaped
-  export
-  popen : HasIO io => (cmd : List String) -> (m : Mode) -> io (Either FileError File)
-  popen = popen . escapeCmd
-
-  export
-  popen2 : HasIO io => (cmd : List String) -> io (Either FileError SubProcess)
-  popen2 = popen2 . escapeCmd

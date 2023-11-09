@@ -246,6 +246,10 @@
 
 * Adds `popen2` to run a subprocess with bi-directional pipes.
 
+* Pairs of functions for running shell commands, like `system`, `run` and `popen`,
+  taking raw strings and list of strings to be escaped, were joined to polymorphic
+  functions.
+
 ### Contrib
 
 * Adds `Data.List.Sufficient`, a small library defining a structurally inductive

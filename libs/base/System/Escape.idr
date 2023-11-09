@@ -32,3 +32,18 @@ escapeArg cmd = let escapedCmdChars = pack $ unpack cmd >>= escapeArgChar in
 public export
 escapeCmd : List String -> String
 escapeCmd cmd = concat $ intersperse " " $ map escapeArg cmd
+
+||| Interface showing the way to convert value of a type to a shell command string
+public export
+interface ShellCmd a where
+  toShellCmd : a -> String
+
+||| Implementation that passes the given string unchanged
+export %inline
+ShellCmd String where
+  toShellCmd = id
+
+||| Implementation that escapes each string in a list
+export %inline
+ShellCmd (List String) where
+  toShellCmd = escapeCmd
