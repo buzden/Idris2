@@ -353,6 +353,13 @@ struct child_process *idris2_popen2(int forkTwice, char *cmd) {
     rval->pid = pid;
     return rval;
   } else {
+    // Detach from the parent, so that no zombie is left,
+    // since main process does not `waitpid` for this.
+    // Proceed if we failed to double-fork.
+    if (forkTwice && fork() > 0) {
+      exit(0);
+    }
+
     close(STDOUT_FILENO);
     dup2(pipes[1], STDOUT_FILENO);
     close(pipes[0]);
@@ -362,13 +369,6 @@ struct child_process *idris2_popen2(int forkTwice, char *cmd) {
     dup2(pipes[2], STDIN_FILENO);
     close(pipes[2]);
     close(pipes[3]);
-
-    // Detach from the parent, so that no zombie is left,
-    // since main process does not `waitpid` for this.
-    // Proceed if we failed to double-fork.
-    if (forkTwice && fork() > 0) {
-      exit(0);
-    }
 
     err = execlp("/bin/sh", "sh", "-c", cmd, NULL);
     // We only reach this point if there is an error.
