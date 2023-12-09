@@ -282,7 +282,7 @@ struct child_process {
 
 // Open a bi-directional pipe, returning the above structure
 // with pid and two file handles.
-struct child_process *idris2_popen2(char *cmd) {
+struct child_process *idris2_popen2(int forkTwice, char *cmd) {
 #ifdef _WIN32
   SECURITY_ATTRIBUTES saAttr;
   HANDLE pipes[4];
@@ -366,7 +366,7 @@ struct child_process *idris2_popen2(char *cmd) {
     // Detach from the parent, so that no zombie is left,
     // since main process does not `waitpid` for this.
     // Proceed if we failed to double-fork.
-    if (fork() > 0) {
+    if (forkTwice && fork() > 0) {
       exit(0);
     }
 

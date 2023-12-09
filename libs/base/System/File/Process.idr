@@ -19,7 +19,7 @@ prim__pclose : FilePtr -> PrimIO Int
 data Popen2Result : Type where
 
 %foreign supportC "idris2_popen2"
-prim__popen2 : String -> PrimIO (Ptr Popen2Result)
+prim__popen2 : Int -> String -> PrimIO (Ptr Popen2Result)
 
 %foreign supportC "idris2_popen2ChildPid"
 prim__popen2ChildPid : Ptr Popen2Result -> PrimIO Int
@@ -86,9 +86,9 @@ record SubProcess where
 |||
 ||| This function is not supported on node at this time.
 export
-popen2 : HasIO io => (cmd : String) -> io (Either FileError SubProcess)
+popen2 : HasIO io => {default True forkTwice : Bool} -> (cmd : String) -> io (Either FileError SubProcess)
 popen2 cmd = do
-  ptr <- primIO (prim__popen2 cmd)
+  ptr <- primIO (prim__popen2 (if forkTwice then 1 else 0) cmd)
   if prim__nullPtr ptr /= 0
     then returnError
     else do
