@@ -184,7 +184,7 @@ elabScript rig fc nest env script@(NDCon nfc nm t ar args) exp
                                 !(evalClosure defs act) exp
              act <- quote defs env act
              k <- evalClosure defs k
-             r <- applyToStack defs withAll env k [(getLoc act, toClosure withAll env act)]
+             r <- applyToStack defs defaultOpts env k [(getLoc act, toClosure withAll env act)]
              elabScript rig fc nest env r exp
     elabCon defs "Fail" [_, mbfc, msg]
         = do msg' <- evalClosure defs msg
