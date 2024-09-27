@@ -37,6 +37,7 @@ data Elab : Type -> Type where
      Map  : (a -> b) -> Elab a -> Elab b
      Ap   : Elab (a -> b) -> Elab a -> Elab b
      Bind : Elab a -> (a -> Elab b) -> Elab b
+     Seq  : Elab () -> Elab b -> Elab b
      Fail : FC -> String -> Elab a
      Warn : FC -> String -> Elab ()
 
@@ -122,6 +123,7 @@ Alternative Elab where
 export
 Monad Elab where
   (>>=) = Bind
+  l >> r = Seq l r
 
 -----------------------------
 --- Elaboration interface ---

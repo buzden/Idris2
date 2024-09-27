@@ -187,6 +187,11 @@ elabScript rig fc nest env script@(NDCon nfc nm t ar args) exp
              k <- evalClosure defs k
              r <- applyToStack defs withAll env k [(getLoc act, toClosure withAll env act)]
              elabScript rig fc nest env r exp
+    elabCon defs "Seq" [_,l,r]
+        -- l : Elab ()
+        -- r : Elab A
+        = do ignore $ elabScript rig fc nest env !(evalClosure defs l) exp
+             elabScript rig fc nest env !(evalClosure defs r) exp
     elabCon defs "Fail" [_, mbfc, msg]
         = do msg' <- evalClosure defs msg
              throw $ RunElabFail $ GenericMsg !(reifyFC defs mbfc) !(reify defs msg')
