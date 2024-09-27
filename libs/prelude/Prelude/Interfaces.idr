@@ -222,17 +222,17 @@ interface Applicative m => Monad m where
   (>>=) x f = join (f <$> x)
   join x = x >>= id
 
+  ||| Sequencing of effectful composition
+  %inline %tcinline total
+  (>>) : m () -> Lazy (m b) -> m b
+  a >> b = a >>= \_ => b
+
 %allow_overloads (>>=)
 
 ||| Right-to-left monadic bind, flipped version of `>>=`.
 %inline %tcinline public export
 (=<<) : Monad m => (a -> m b) -> m a -> m b
 (=<<) = flip (>>=)
-
-||| Sequencing of effectful composition
-%inline %tcinline public export
-(>>) : Monad m => m () -> Lazy (m b) -> m b
-a >> b = a >>= \_ => b
 
 ||| Left-to-right Kleisli composition of monads.
 public export %tcinline

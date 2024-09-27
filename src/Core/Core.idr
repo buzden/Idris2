@@ -1032,6 +1032,7 @@ namespace Monad
   [CORE] Monad Core using Applicative.CORE where
     (>>=) = Core.(>>=)
     join mma = Core.(>>=) mma id
+    a >> b = Core.(>>) a b
 
 namespace Search
 
