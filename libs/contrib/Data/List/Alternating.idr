@@ -193,19 +193,19 @@ namespace Snd
     [SndMonad] Monoid a => Monad (Odd a) where
         x >>= f = assert_total $ biconcatMap singleton f x
 
-    public export
-    (>>=) : Monoid a => Odd a b -> (b -> Odd a c) -> Odd a c
-    (>>=) = (>>=) @{SndMonad}
-
 namespace Fst
     public export
     [FstMonad] Monad (\a => Odd a b) using FstApplicative where
         x >>= f = flatten $ mapFst f x
-        join = flatten
 
     public export
     (>>=) : Odd a c -> (a -> Odd b c) -> Odd b c
     (>>=) = (>>=) @{FstMonad}
+
+namespace Snd
+    public export
+    (>>=) : Monoid a => Odd a b -> (b -> Odd a c) -> Odd a c
+    (>>=) = (>>=) @{SndMonad}
 
 public export
 Traversable (Odd a) where
