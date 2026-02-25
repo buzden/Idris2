@@ -13,3 +13,6 @@ Some text here
 f : Nat -> Nat
 f = (+8) . silentlyDeclaredFunction
 ```
+
+Some inline code: ```idris some non-sense```.
+```idris some more non-sense``` --- even at the beginning of the line.

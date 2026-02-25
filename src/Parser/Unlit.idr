@@ -42,7 +42,7 @@ styleTeX = MkLitStyle
 export
 styleTypst : LiterateStyle
 styleTypst = MkLitStyle
-               [("```idris", "```"), ("/* idris", "*/")]
+               [("```idris\n", "```"), ("/* idris\n", "*/")]
                Nil
                [".typ"]
 
